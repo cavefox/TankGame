@@ -49,11 +49,11 @@ void UTankAimingComponent::AimAt(const FVector & hitLocation, float launchSpeed)
 	
 	if (bHasAimSolution) {
 		aimDirection = outTossDirection.GetSafeNormal();
-		UE_LOG(LogTemp, Warning, TEXT("Tank %s find aim solution"), *GetOwner()->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Tank %s find aim solution"), *GetOwner()->GetName());
 		MoveBarrelToward(aimDirection);
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("Tank %s can't find aim solution"), *GetOwner()->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Tank %s can't find aim solution"), *GetOwner()->GetName());
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("Tank %s fired! aim at %s"), *GetOwner()->GetName(), *aimDirection.ToString());
 }
@@ -73,8 +73,8 @@ void UTankAimingComponent::MoveBarrelToward(const FVector& dir)
 	FRotator dest = dir.Rotation();
 	FRotator diff = dest - cur0;
 
-	UE_LOG(LogTemp, Warning, TEXT("Tank %s dest Yaw %f"), *GetOwner()->GetName(), dest.Yaw);
-	UE_LOG(LogTemp, Warning, TEXT("Tank %s cur Yaw %f"), *GetOwner()->GetName(), cur0.Yaw);
+	//UE_LOG(LogTemp, Warning, TEXT("Tank %s dest Yaw %f"), *GetOwner()->GetName(), dest.Yaw);
+	//UE_LOG(LogTemp, Warning, TEXT("Tank %s cur Yaw %f"), *GetOwner()->GetName(), cur0.Yaw);
 	BarrelComponent->Elevate(diff.Pitch);
 	//TurretComponent->Turn(FVector2D::DotProduct(dir2D, rightVec2D) * 5.0f);
 	TurretComponent->Turn(diff.Yaw);

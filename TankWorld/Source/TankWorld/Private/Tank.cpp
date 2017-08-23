@@ -43,6 +43,11 @@ void ATank::SetTurretMeshComponent(UTurretMeshComponent * turretToSet)
 	TankAimingComponent->SetTurretMeshComponent(turretToSet);
 }
 
+void ATank::Fire()
+{
+	UE_LOG(LogTemp, Error, TEXT("Your Tank has Fired!!"));
+}
+
 // Called when the game starts or when spawned
 void ATank::BeginPlay()
 {
