@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TankAimingComponent.h"
 #include "GameFramework/Pawn.h"
 #include "Tank.generated.h"
+
+class UTankBarrelMeshComponent;
+class UTankAimingComponent;
 
 UCLASS()
 class TANKWORLD_API ATank : public APawn
@@ -23,16 +25,20 @@ protected:
 	UPROPERTY()
 		UTankAimingComponent*			TankAimingComponent;
 
+	UPROPERTY(EditAnywhere)
+		float		LaunchSpeed = 4500; // TODO 将Tank的LaunchSpeed设置为一个更合理的值 默认: 1公里/s 
+
 	UFUNCTION(BlueprintCallable)
-		void SetBarrelMeshComponent(UStaticMeshComponent* BarrelToSet);
+		void SetBarrelMeshComponent(UTankBarrelMeshComponent* BarrelToSet);
+
+	UFUNCTION(BlueprintCallable)
+		void SetTurretMeshComponent(class UTurretMeshComponent* turretToSet);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

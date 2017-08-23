@@ -6,8 +6,10 @@
 #include "Components/ActorComponent.h"
 #include "TankAimingComponent.generated.h"
 
+class UTankBarrelMeshComponent;
+class UTurretMeshComponent;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Tank), meta=(BlueprintSpawnableComponent) )
 class TANKWORLD_API UTankAimingComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -21,12 +23,17 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 		
-	void SetBarrelMeshComponent(UStaticMeshComponent* ComponentToSet);
-	void AimAt(const FVector& hitLocation);
+	void SetBarrelMeshComponent(UTankBarrelMeshComponent* ComponentToSet);
+	void SetTurretMeshComponent(UTurretMeshComponent* turretToSet);
+	void AimAt(const FVector& hitLocation, float launchSpeed);
 private:
-	UStaticMeshComponent* BarrelComponent;
+	void MoveBarrelToward(const FVector& dir);
+
+	UPROPERTY()
+	UTankBarrelMeshComponent* BarrelComponent;
+
+	UPROPERTY()
+	UTurretMeshComponent*	TurretComponent;
 };

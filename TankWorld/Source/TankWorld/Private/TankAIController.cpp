@@ -3,7 +3,7 @@
 #include "TankAIController.h"
 #include "engine/World.h"
 #include "gameframework/PlayerController.h"
-
+#include "Tank.h"
 
 
 
@@ -20,14 +20,14 @@ void ATankAIController::BeginPlay() {
 }
 
 ATank* ATankAIController::GetControlledTank()const {
-	return Cast<ATank>(GetControlledPawn());
+	return Cast<ATank>(GetPawn());
 }
 
 ATank* ATankAIController::GetPlayerControlledTank()const {
-	return Cast<ATank>(GWorld->GetFirstPlayerController()->GetControlledPawn());
+	return Cast<ATank>(GWorld->GetFirstPlayerController()->GetPawn());
 }
 
 void ATankAIController::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	GetControlledTank()->AimAt(GetPlayerControlledTank()->GetActorLocation());
+	//GetControlledTank()->AimAt(GetPlayerControlledTank()->GetActorLocation());
 }

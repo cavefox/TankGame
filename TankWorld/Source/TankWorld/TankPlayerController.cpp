@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TankPlayerController.h"
+
+#include "Tank.h"
 #include "Engine/Engine.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -36,7 +38,11 @@ void ATankPlayerController::AimTowardsCrosshair() {
 	FVector hitLocation = FVector::ZeroVector;
 	if(GetRaySightHitLocation( OUT hitLocation )){
 		auto tank = GetControlledTank();
+		//UE_LOG(LogTemp, Warning, TEXT("Tank %s Find hit location"), *GetControlledTank() ->GetName());
 		tank->AimAt(hitLocation);
+	}
+	else {
+		//UE_LOG(LogTemp, Warning, TEXT("Tank %s Can't Find hit location"), *GetControlledTank()->GetName());
 	}
 
 }
