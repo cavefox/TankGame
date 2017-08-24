@@ -7,6 +7,7 @@
 #include "TurretMeshComponent.h"
 #include "kismet/GameplayStatics.h"
 #include "engine/World.h"
+#include "UObject/ConstructorHelpers.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()

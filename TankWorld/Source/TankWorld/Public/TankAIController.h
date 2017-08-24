@@ -19,8 +19,6 @@ public:
 	virtual void Tick(float DeltaTime)override;
 	
 public:
-	virtual void BeginPlay()override;
-
-	ATank* GetControlledTank()const;
-	ATank* GetPlayerControlledTank()const;
+	UFUNCTION(BlueprintCallable)
+		void Fire();
 };

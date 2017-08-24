@@ -19,6 +19,6 @@ class TANKWORLD_API UTurretMeshComponent : public UStaticMeshComponent
 public:
 	void Turn(float turnSpeed);
 
-	UPROPERTY(EditAnywhere, category = Setup)
+	UPROPERTY(EditDefaultsOnly, category = Setup)
 		float		MaxTurnPerSecond = 25;
 };

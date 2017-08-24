@@ -29,13 +29,13 @@ public:
 	bool GetLookDirection(FVector2D screenPos, FVector& lookDirection)const;
 	bool GetLookVectorHitResult(FVector lookDirection, FVector& hitLocation)const;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 		float		SightRangeToTrace = 1000000.0f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 		float		CrosshairInScreenPositionRatioX = 0.5f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 		float		CrosshairInScreenPositionRatioY = 0.3f;
 
 };

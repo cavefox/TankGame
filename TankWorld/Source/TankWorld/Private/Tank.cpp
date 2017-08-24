@@ -3,6 +3,8 @@
 #include "Tank.h"
 #include "TankAimingComponent.h"
 #include "TankBarrelMeshComponent.h"
+#include "engine/World.h"
+#include "Projectile.h"
 
 // Sets default values
 ATank::ATank()
@@ -31,6 +33,7 @@ void ATank::SetBarrelMeshComponent(UTankBarrelMeshComponent * BarrelToSet)
 		return;
 	}
 
+	BarrelComponent = BarrelToSet;
 	TankAimingComponent->SetBarrelMeshComponent(BarrelToSet);
 }
 
@@ -39,13 +42,29 @@ void ATank::SetTurretMeshComponent(UTurretMeshComponent * turretToSet)
 	if (!TankAimingComponent) {
 		return;
 	}
-
 	TankAimingComponent->SetTurretMeshComponent(turretToSet);
 }
 
 void ATank::Fire()
 {
-	UE_LOG(LogTemp, Error, TEXT("Your Tank has Fired!!"));
+	if (!TankAimingComponent) {
+		return;
+	}
+
+	if (!BarrelComponent) {
+		return;
+	}
+
+	bool bReload = (FPlatformTime::Seconds() - LastFireTime) >= FireInterval;
+
+
+	if (bReload) {
+		FVector location = BarrelComponent->GetSocketLocation(FName(TEXT("ProjectileLocation")));
+		FRotator rotation = BarrelComponent->GetSocketRotation(FName(TEXT("ProjectileLocation")));
+		AProjectile *projectile = GWorld->SpawnActor<AProjectile>(ProjectileClass, location, rotation);
+		projectile->Launch(LaunchSpeed);
+		LastFireTime = FPlatformTime::Seconds();
+	}
 }
 
 // Called when the game starts or when spawned

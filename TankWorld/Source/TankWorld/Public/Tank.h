@@ -8,6 +8,7 @@
 
 class UTankBarrelMeshComponent;
 class UTankAimingComponent;
+class AProjectile;
 
 UCLASS()
 class TANKWORLD_API ATank : public APawn
@@ -21,11 +22,17 @@ public:
 
 	void AimAt(const FVector& hitLocation);
 
+	UFUNCTION(BlueprintCallable)
+		void Fire();
+
 protected:
 	UPROPERTY()
 		UTankAimingComponent*			TankAimingComponent;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<AProjectile>		ProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly)
 		float		LaunchSpeed = 4500; // TODO 将Tank的LaunchSpeed设置为一个更合理的值 默认: 1公里/s 
 
 	UFUNCTION(BlueprintCallable)
@@ -34,8 +41,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void SetTurretMeshComponent(class UTurretMeshComponent* turretToSet);
 
-	UFUNCTION(BlueprintCallable)
-		void Fire();
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -47,5 +53,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	
-	
+private:
+	UPROPERTY()
+		UTankBarrelMeshComponent *BarrelComponent = nullptr;
+
+	UPROPERTY(EditAnywhere)
+		float	FireInterval = 3.0f;
+
+	double LastFireTime = 0;
 };
