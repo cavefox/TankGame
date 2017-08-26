@@ -21,4 +21,8 @@ public:
 public:
 	UFUNCTION(BlueprintCallable)
 		void Fire();
+
+
+	UPROPERTY(EditAnywhere)
+		float PathFindingAcceptanceRadius = 3000.0f;
 };

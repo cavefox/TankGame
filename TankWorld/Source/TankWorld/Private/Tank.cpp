@@ -5,6 +5,7 @@
 #include "TankBarrelMeshComponent.h"
 #include "engine/World.h"
 #include "Projectile.h"
+#include "TankMovementComponent.h"
 
 // Sets default values
 ATank::ATank()
@@ -12,66 +13,46 @@ ATank::ATank()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-
-	TankAimingComponent = CreateDefaultSubobject<UTankAimingComponent>(FName(TEXT("My Aiming Component")));
+	UE_LOG(LogTemp, Warning, TEXT("Tank C++ Construct"));
 }
 
 void ATank::AimAt(const FVector & hitLocation)
 {
+	UTankAimingComponent *AimingComponent = FindComponentByClass<UTankAimingComponent>();
+	if (!AimingComponent) {
+		return;
+	}
+
 	//UE_LOG(LogTemp, Warning, TEXT("%s is aiming at %s"), *GetName(), *hitLocation.ToString());
-	if (!TankAimingComponent) {
-		return;
-	}
 
-
-	TankAimingComponent->AimAt(hitLocation, LaunchSpeed);
-}
-
-void ATank::SetBarrelMeshComponent(UTankBarrelMeshComponent * BarrelToSet)
-{
-	if (!TankAimingComponent) {
-		return;
-	}
-
-	BarrelComponent = BarrelToSet;
-	TankAimingComponent->SetBarrelMeshComponent(BarrelToSet);
-}
-
-void ATank::SetTurretMeshComponent(UTurretMeshComponent * turretToSet)
-{
-	if (!TankAimingComponent) {
-		return;
-	}
-	TankAimingComponent->SetTurretMeshComponent(turretToSet);
+	AimingComponent ->AimAt(hitLocation, LaunchSpeed);
 }
 
 void ATank::Fire()
 {
-	if (!TankAimingComponent) {
+	UTankAimingComponent *AimingComponent = FindComponentByClass<UTankAimingComponent>();
+	if (!AimingComponent) {
 		return;
 	}
 
-	if (!BarrelComponent) {
-		return;
-	}
 
 	bool bReload = (FPlatformTime::Seconds() - LastFireTime) >= FireInterval;
 
 
 	if (bReload) {
-		FVector location = BarrelComponent->GetSocketLocation(FName(TEXT("ProjectileLocation")));
-		FRotator rotation = BarrelComponent->GetSocketRotation(FName(TEXT("ProjectileLocation")));
+		FVector location = AimingComponent ->GetBarrelMeshComponent() ->GetSocketLocation(FName(TEXT("ProjectileLocation")));
+		FRotator rotation = AimingComponent->GetBarrelMeshComponent() ->GetSocketRotation(FName(TEXT("ProjectileLocation")));
 		AProjectile *projectile = GWorld->SpawnActor<AProjectile>(ProjectileClass, location, rotation);
 		projectile->Launch(LaunchSpeed);
 		LastFireTime = FPlatformTime::Seconds();
 	}
 }
 
-// Called when the game starts or when spawned
 void ATank::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	UE_LOG(LogTemp, Warning, TEXT("Tank C++ BeginPlay"));
 }
 
 // Called to bind functionality to input

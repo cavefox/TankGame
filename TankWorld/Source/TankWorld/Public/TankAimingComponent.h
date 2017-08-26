@@ -9,6 +9,14 @@
 class UTankBarrelMeshComponent;
 class UTurretMeshComponent;
 
+
+UENUM(BlueprintType)
+enum class EFireStatus : uint8 {
+	Reloading = 0,
+	Aiming,
+	Locked
+};
+
 UCLASS( ClassGroup=(Tank), meta=(BlueprintSpawnableComponent) )
 class TANKWORLD_API UTankAimingComponent : public UActorComponent
 {
@@ -23,11 +31,23 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-
+	UFUNCTION(BlueprintCallable)
+		void Initialise(UTankBarrelMeshComponent* barrelToSet, UTurretMeshComponent* turretToSet);
 		
-	void SetBarrelMeshComponent(UTankBarrelMeshComponent* ComponentToSet);
-	void SetTurretMeshComponent(UTurretMeshComponent* turretToSet);
 	void AimAt(const FVector& hitLocation, float launchSpeed);
+
+	UTankBarrelMeshComponent* GetBarrelMeshComponent()const {
+		return BarrelComponent;
+	}
+
+	UTurretMeshComponent* GetTurretMeshComponent()const {
+		return TurretComponent;
+	}
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+		EFireStatus		FiringState = EFireStatus::Locked;
+
 private:
 	void MoveBarrelToward(const FVector& dir);
 

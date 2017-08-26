@@ -27,13 +27,8 @@ void UTankAimingComponent::BeginPlay()
 	// ...
 }
 
-void UTankAimingComponent::SetBarrelMeshComponent(UTankBarrelMeshComponent * ComponentToSet)
-{
-	BarrelComponent = ComponentToSet;
-}
-
-void UTankAimingComponent::SetTurretMeshComponent(UTurretMeshComponent * turretToSet)
-{
+void UTankAimingComponent::Initialise(UTankBarrelMeshComponent* barrelToSet, UTurretMeshComponent* turretToSet) {
+	BarrelComponent = barrelToSet;
 	TurretComponent = turretToSet;
 }
 
