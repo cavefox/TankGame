@@ -7,7 +7,8 @@
 #include "Projectile.generated.h"
 
 class UProjectileMovementComponent;
-
+class UStaticMeshComponent;
+class UParticleSystemComponent;
 
 UCLASS()
 class TANKWORLD_API AProjectile : public AActor
@@ -31,4 +32,10 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly)
 		UProjectileMovementComponent	*ProjectileMovementComponent;
+
+	UPROPERTY(VisibleAnywhere)
+		UStaticMeshComponent		*CollisionMesh;
+
+	UPROPERTY(VisibleAnywhere)
+		UParticleSystemComponent	*LaunchBlast;
 };

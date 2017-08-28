@@ -53,7 +53,7 @@ public:
 	EFireStatus GetFireStatus()const;
 
 	UFUNCTION(BlueprintCallable)
-		int GetAmmoLeft()const;
+		int32 GetAmmoLeft()const;
 
 protected:
 
@@ -75,7 +75,7 @@ protected:
 		float	FireInterval = 3.0f;
 
 	UPROPERTY(EditAnywhere)
-	int	AmmoLeft = 999;
+	int32	AmmoLeft = 999;
 
 
 private:
