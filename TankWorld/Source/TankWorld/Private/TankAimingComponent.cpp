@@ -1,20 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TankAimingComponent.h"
-#include "Gameframework/Actor.h"
-#include "components/StaticMeshComponent.h"
 #include "TankBarrelMeshComponent.h"
 #include "TurretMeshComponent.h"
+#include "Projectile.h"
 #include "kismet/GameplayStatics.h"
 #include "engine/World.h"
-#include "UObject/ConstructorHelpers.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 	// ...
 }
 
@@ -24,7 +22,24 @@ void UTankAimingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	LastFireTime = FPlatformTime::Seconds();
+}
+
+void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) {
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (AmmoLeft <= 0) {
+		FiringState = EFireStatus::AmmoExhausted;
+	}
+	else if (FPlatformTime::Seconds() - LastFireTime < FireInterval) {
+		FiringState = EFireStatus::Reloading;
+	}
+	else if (IsBarrelMoving()) {
+		FiringState = EFireStatus::Aiming;
+	}
+	else {
+		FiringState = EFireStatus::Locked;
+	}
 }
 
 void UTankAimingComponent::Initialise(UTankBarrelMeshComponent* barrelToSet, UTurretMeshComponent* turretToSet) {
@@ -32,7 +47,25 @@ void UTankAimingComponent::Initialise(UTankBarrelMeshComponent* barrelToSet, UTu
 	TurretComponent = turretToSet;
 }
 
-void UTankAimingComponent::AimAt(const FVector & hitLocation, float launchSpeed)
+void UTankAimingComponent::Fire()
+{
+	if (!ensure(ProjectileClass)) {
+		return;
+	}
+
+	if (FiringState == EFireStatus::Locked || FiringState == EFireStatus::Aiming) {
+		FVector location = BarrelComponent ->GetSocketLocation(FName(TEXT("ProjectileLocation")));
+		FRotator rotation = BarrelComponent ->GetSocketRotation(FName(TEXT("ProjectileLocation")));
+		AProjectile *projectile = GWorld->SpawnActor<AProjectile>(ProjectileClass, location, rotation);
+		projectile->Launch(LaunchSpeed);
+
+		LastFireTime = FPlatformTime::Seconds();
+		FMath::Clamp(--AmmoLeft, 0, 3);
+	}
+}
+
+
+void UTankAimingComponent::AimAt(const FVector & hitLocation)
 {
 	if (!BarrelComponent) {
 		return;
@@ -40,13 +73,13 @@ void UTankAimingComponent::AimAt(const FVector & hitLocation, float launchSpeed)
 
 	FVector startLocation = BarrelComponent->GetSocketLocation(FName(TEXT("ProjectileLocation")));
 	FVector outTossDirection;
-	FVector aimDirection = FVector::ZeroVector;
-	bool bHasAimSolution = UGameplayStatics::SuggestProjectileVelocity(this, outTossDirection, startLocation, hitLocation, launchSpeed, false, 0.0f, 0.0f, ESuggestProjVelocityTraceOption::DoNotTrace, FCollisionResponseParams::DefaultResponseParam, TArray<AActor*>(), false);
+	AimToDir = FVector::ZeroVector;
+	bool bHasAimSolution = UGameplayStatics::SuggestProjectileVelocity(this, outTossDirection, startLocation, hitLocation, LaunchSpeed, false, 0.0f, 0.0f, ESuggestProjVelocityTraceOption::DoNotTrace, FCollisionResponseParams::DefaultResponseParam, TArray<AActor*>(), false);
 	
 	if (bHasAimSolution) {
-		aimDirection = outTossDirection.GetSafeNormal();
+		AimToDir = outTossDirection.GetSafeNormal();
 		//UE_LOG(LogTemp, Warning, TEXT("Tank %s find aim solution"), *GetOwner()->GetName());
-		MoveBarrelToward(aimDirection);
+		MoveBarrelToward(AimToDir);
 	}
 	else {
 		//UE_LOG(LogTemp, Warning, TEXT("Tank %s can't find aim solution"), *GetOwner()->GetName());
@@ -54,25 +87,44 @@ void UTankAimingComponent::AimAt(const FVector & hitLocation, float launchSpeed)
 	//UE_LOG(LogTemp, Warning, TEXT("Tank %s fired! aim at %s"), *GetOwner()->GetName(), *aimDirection.ToString());
 }
 
+EFireStatus UTankAimingComponent::GetFireStatus() const
+{
+	return FiringState;
+}
+
+int UTankAimingComponent::GetAmmoLeft() const
+{
+	return AmmoLeft;
+}
+
 void UTankAimingComponent::MoveBarrelToward(const FVector& dir)
 {
 	if (!BarrelComponent) {
 		return;
 	}
-	FVector cameraRightVec = GWorld->GetFirstPlayerController()->PlayerCameraManager->GetActorRightVector();
-	FVector2D rightVec2D = FVector2D(-cameraRightVec.X, -cameraRightVec.Y);
-	FVector2D dir2D = FVector2D(BarrelComponent->GetForwardVector().X, BarrelComponent->GetForwardVector().Y);
-
-
 	FRotator cur0 = BarrelComponent->GetForwardVector().Rotation();
-	FRotator cur = BarrelComponent->GetRelativeTransform().GetRotation().Rotator();
 	FRotator dest = dir.Rotation();
 	FRotator diff = dest - cur0;
 
-	//UE_LOG(LogTemp, Warning, TEXT("Tank %s dest Yaw %f"), *GetOwner()->GetName(), dest.Yaw);
-	//UE_LOG(LogTemp, Warning, TEXT("Tank %s cur Yaw %f"), *GetOwner()->GetName(), cur0.Yaw);
+
 	BarrelComponent->Elevate(diff.Pitch);
-	//TurretComponent->Turn(FVector2D::DotProduct(dir2D, rightVec2D) * 5.0f);
-	TurretComponent->Turn(diff.Yaw);
+
+	if (FMath::Abs(diff.Yaw) < 180.0f)
+	{
+		TurretComponent->Turn(diff.Yaw);
+	}
+	else {
+		TurretComponent->Turn(-diff.Yaw);
+	}
+}
+
+bool UTankAimingComponent::IsBarrelMoving()
+{
+	if (!ensure(BarrelComponent)) {
+		return false;
+	}
+
+	auto barrelForward = BarrelComponent->GetForwardVector();
+	return !AimToDir.Equals(barrelForward, 0.01f);
 }
 

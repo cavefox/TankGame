@@ -7,7 +7,6 @@
 #include "Tank.generated.h"
 
 class UTankBarrelMeshComponent;
-class UTankAimingComponent;
 class AProjectile;
 class UTankMovementComponent;
 
@@ -20,33 +19,6 @@ public:
 	// Sets default values for this pawn's properties
 	ATank();
 
-	void AimAt(const FVector& hitLocation);
-
-	UFUNCTION(BlueprintCallable)
-		void Fire();
-
-protected:
-	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<AProjectile>		ProjectileClass;
-
-	UPROPERTY(EditDefaultsOnly)
-		float		LaunchSpeed = 4500; // TODO 将Tank的LaunchSpeed设置为一个更合理的值 默认: 1公里/s 
-
-	UPROPERTY(EditAnywhere)
-		float	FireInterval = 3.0f;
-
-
-
-protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	
-private:
-	double LastFireTime = 0;
 };

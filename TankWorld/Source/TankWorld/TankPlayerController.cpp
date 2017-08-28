@@ -1,17 +1,25 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TankPlayerController.h"
-
-#include "Tank.h"
 #include "Engine/Engine.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "TankAimingComponent.h"
 
 #define OUT
 
 void ATankPlayerController::BeginPlay() {
 	Super::BeginPlay();
-	ATank* possessedTank = GetControlledTank();
+	//ATank* possessedTank = GetControlledTank();
+
+	UTankAimingComponent* AimingComponent = GetPawn() ->FindComponentByClass<UTankAimingComponent>();
+	if (AimingComponent) {
+		FindTankAimingComponent(AimingComponent);
+	}
+	else {
+		auto tankName = GetPawn()->GetName();
+		UE_LOG(LogTemp, Warning, TEXT("%s can't find AimingComponent"), *tankName);
+	}
 }
 
 void ATankPlayerController::Tick(float DeltaTime) {
@@ -19,23 +27,23 @@ void ATankPlayerController::Tick(float DeltaTime) {
 	AimTowardsCrosshair();
 }
 
-ATank* ATankPlayerController::GetControlledTank()const {
-	return Cast<ATank>(GetPawn());
-}
 
 void ATankPlayerController::AimTowardsCrosshair() {
-	if (GetControlledTank() == nullptr) {
+	if (!GetPawn()) {
 		return;
 	}
 
-	FVector hitLocation = FVector::ZeroVector;
-	if(GetRaySightHitLocation( OUT hitLocation )){
-		auto tank = GetControlledTank();
-		//UE_LOG(LogTemp, Warning, TEXT("Tank %s Find hit location"), *GetControlledTank() ->GetName());
-		tank->AimAt(hitLocation);
-	}
-	else {
-		//UE_LOG(LogTemp, Warning, TEXT("Tank %s Can't Find hit location"), *GetControlledTank()->GetName());
+	UTankAimingComponent* AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
+	if (ensure(AimingComponent)) {
+		FVector hitLocation = FVector::ZeroVector;
+		if (GetRaySightHitLocation(OUT hitLocation)) {
+			AimingComponent->AimAt(hitLocation);
+			//UE_LOG(LogTemp, Warning, TEXT("Tank %s Find hit location"), *GetControlledTank() ->GetName());
+			//tank->AimAt(hitLocation);
+		}
+		else {
+			//UE_LOG(LogTemp, Warning, TEXT("Tank %s Can't Find hit location"), *GetControlledTank()->GetName());
+		}
 	}
 
 }
@@ -69,7 +77,7 @@ bool ATankPlayerController::GetLookVectorHitResult(FVector lookDirection, FVecto
 	FVector startLocation = PlayerCameraManager->GetCameraLocation();
 	FVector endLocation = startLocation + SightRangeToTrace * lookDirection;
 	FHitResult hitResult;
-	FCollisionQueryParams queryParams(FName(TEXT("")), false, GetControlledTank());
+	FCollisionQueryParams queryParams(FName(TEXT("")), false, GetPawn());
 	if (GWorld->LineTraceSingleByChannel(OUT hitResult,
 		startLocation,
 		endLocation,

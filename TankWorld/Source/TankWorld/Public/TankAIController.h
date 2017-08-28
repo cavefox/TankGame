@@ -23,6 +23,6 @@ public:
 		void Fire();
 
 
-	UPROPERTY(EditAnywhere)
-		float PathFindingAcceptanceRadius = 3000.0f;
+	UPROPERTY(EditDefaultsOnly)
+		float PathFindingAcceptanceRadius = 8000.0f;
 };
