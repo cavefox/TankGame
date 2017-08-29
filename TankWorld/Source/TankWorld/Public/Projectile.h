@@ -9,6 +9,7 @@
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
 class UParticleSystemComponent;
+class URadialForceComponent;
 
 UCLASS()
 class TANKWORLD_API AProjectile : public AActor
@@ -23,19 +24,35 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit );
+
+	void OnTimeExpire();
+
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	void Launch(float speed);
 	
 protected:
 	UPROPERTY(EditDefaultsOnly)
-		UProjectileMovementComponent	*ProjectileMovementComponent;
+		UProjectileMovementComponent	*ProjectileMovementComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
-		UStaticMeshComponent		*CollisionMesh;
+		UStaticMeshComponent		*CollisionMesh = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
-		UParticleSystemComponent	*LaunchBlast;
+		UParticleSystemComponent	*LaunchBlast = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+		UParticleSystemComponent	*ImpactBlast = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+		URadialForceComponent		*ExplosionForce = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+		float			DestroyDelay = 3.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+		float			DamageAmout = 1001.0f;
+
 };

@@ -25,4 +25,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 		float PathFindingAcceptanceRadius = 8000.0f;
+
+	virtual void SetPawn(APawn* InPawn)override;
+
+protected:
+	UFUNCTION()
+	void OnPossessedTankDead();
 };

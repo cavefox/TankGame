@@ -5,13 +5,17 @@
 #include "Camera/PlayerCameraManager.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "TankAimingComponent.h"
-
+#include "Tank.h"
 #define OUT
+
+
+void ATankPlayerController::OnTankDead() {
+	UE_LOG(LogTemp, Warning, TEXT("ATankPlayerController::OnTankDead"));
+}
 
 void ATankPlayerController::BeginPlay() {
 	Super::BeginPlay();
 	//ATank* possessedTank = GetControlledTank();
-
 	UTankAimingComponent* AimingComponent = GetPawn() ->FindComponentByClass<UTankAimingComponent>();
 	if (AimingComponent) {
 		FindTankAimingComponent(AimingComponent);
@@ -25,6 +29,20 @@ void ATankPlayerController::BeginPlay() {
 void ATankPlayerController::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	AimTowardsCrosshair();
+}
+
+void ATankPlayerController::SetPawn(APawn * InPawn)
+{
+	Super::SetPawn(InPawn);
+	if (InPawn) {
+		ATank* possessedTank = Cast<ATank>(InPawn);
+		if (!ensure(possessedTank)) {
+			return;
+		}
+
+		possessedTank->OnTankDead.AddUniqueDynamic(this, &ATankPlayerController::OnTankDead);
+	}
+
 }
 
 

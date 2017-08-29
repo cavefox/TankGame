@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "Tank.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTankDeadDelegate);
+
 class UTankBarrelMeshComponent;
 class AProjectile;
 class UTankMovementComponent;
@@ -21,4 +23,25 @@ public:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)override;
+
+	UFUNCTION(BlueprintCallable)
+	float	GetHealthPointPercent()const { return CurrentPoints / FullHealthPoints; }
+
+	UPROPERTY()
+		FOnTankDeadDelegate			OnTankDead;
+
+protected:
+	UFUNCTION()
+	void OnAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser );
+
+	UFUNCTION()
+	void OnPointDamage(	AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser );
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		float		FullHealthPoints = 10000.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float	CurrentPoints = FullHealthPoints;
 };

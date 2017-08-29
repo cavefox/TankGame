@@ -18,9 +18,16 @@ class TANKWORLD_API ATankPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+protected:
+	UFUNCTION()
+		void OnTankDead();
+
 public:
 	virtual void BeginPlay()override;
 	virtual void Tick(float DeltaTime)override;
+	virtual void SetPawn(APawn* InPawn)override;
+
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void FindTankAimingComponent(UTankAimingComponent* AimingComponent);
